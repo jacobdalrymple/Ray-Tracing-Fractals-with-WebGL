@@ -182,14 +182,14 @@ class Shader
                 {
                     gl_FragColor = objectColor * (1.7 * float(ray.numOfIterations) / float(maxRayIterations));
 
-                    //ray.finalPos += 0.01 * normalize(ray.finalPos - spherePos);
-                    //vec3 lightDir = normalize(lightPos - ray.finalPos);
-                    //RayInfo lightRay = castRay(ray.finalPos, lightDir, minStep);
-//
-                    //if (lightRay.hitObject == true)
-                    //{
-                    //    gl_FragColor = shadowColor;
-                    //}
+                    ray.finalPos += 0.01 * normalize(ray.finalPos - spherePos);
+                    vec3 lightDir = normalize(lightPos - ray.finalPos);
+                    RayInfo lightRay = castRay(ray.finalPos, lightDir, minStep);
+
+                    if (lightRay.hitObject == true)
+                    {
+                        gl_FragColor = shadowColor;
+                    }
                 }
                 else {
                     if (ray.minDist < 2.0 * minStep) {
