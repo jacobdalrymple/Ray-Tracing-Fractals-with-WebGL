@@ -95,7 +95,7 @@ class Shader
             };
 
 
-            const int maxRayIterations = 40;
+            const int maxRayIterations = 50;
             const int maxFractalIterations = 50;
 
             vec3 rotateCoordsAroundY(vec3 coords, float theta)
@@ -146,7 +146,7 @@ class Shader
             RayInfo castRay(vec3 rayPos, vec3 rayDir, float minStep)
             {
                 float travelDist = 0.0;
-                float minDist = 1.0;
+                float minDist = 2.0;
                 int numOfIterations = 0;
 
                 //while (i < maxRayIterations && length(rayPos - vec3(0.0, 0.0, 1.7)) < 2.0)
@@ -174,10 +174,10 @@ class Shader
             void main ()
             {
                 vec3 rayDir = normalize( vec3(fragPos.x / 2. , fragPos.y / 2. , -0.5) );
-                vec3 rayPos = vec3(0.0, 0.0, 1.7);
-                float minStep = 0.0025;
+                vec3 rayPos = vec3(0.0, 0.0, 3.7);
+                float minStep = 0.001;
 
-                vec4 backgroundColor = vec4(0.6 , 0.6, 0.4, 1.0) - vec4(0.4 , 0.4, 0.25, 1.0) * (rayDir.y - 0.5);
+                vec4 backgroundColor = vec4(0.0 , 0.2, 0.2, 1.0) + vec4(0.4 , 0.4, 0.25, 0.0) * (rayDir.y - 0.5);
                 vec4 objectColor = vec4(0.8, 0.0, 0.0, 1.0);
                 vec4 shadowColor = vec4(vec3(0.0), 1.0);
                 vec3 mistColor = vec3(0.2, 0.0, 0.0);
@@ -200,7 +200,7 @@ class Shader
                     }
                 }
                 else {
-                    if (ray.minDist < 2.0 * minStep) {
+                    if (ray.minDist < 5.0 * minStep) {
                         gl_FragColor = vec4((2.0 * minStep / ray.minDist) * mistColor, 1.0);
                     }
                 }
