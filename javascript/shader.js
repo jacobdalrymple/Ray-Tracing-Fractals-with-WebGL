@@ -40,8 +40,13 @@ class Shader
         if (typeof value == "number"){
             gl.uniform1f(location, value);
         }
-        else if (value.constructor === Array && value.length == 3) {
-            gl.uniform3fv(location, value);
+        else if (value.constructor === Array) {
+            if (value.length == 2) {
+                gl.uniform2fv(location, value);
+            }
+            else if (value.length == 3) {
+                gl.uniform3fv(location, value);
+            }
         }
         else {
             alert('ERROR : Passing unsupported type to shader');
@@ -58,11 +63,13 @@ class Shader
         return `
             attribute vec3 aPos;
 
+            uniform vec3 screenScale;
+
             varying vec3 fragPos;
 
             void main() {
                 gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
-                fragPos = aPos;
+                fragPos = aPos * screenScale;
             }
         `;
     }
@@ -173,6 +180,7 @@ class Shader
                 vec4 backgroundColor = vec4(0.6 , 0.6, 0.4, 1.0) - vec4(0.4 , 0.4, 0.25, 1.0) * (rayDir.y - 0.5);
                 vec4 objectColor = vec4(0.8, 0.0, 0.0, 1.0);
                 vec4 shadowColor = vec4(vec3(0.0), 1.0);
+                vec3 mistColor = vec3(0.2, 0.0, 0.0);
 
 
                 gl_FragColor = backgroundColor;
@@ -180,7 +188,7 @@ class Shader
 
                 if (ray.hitObject == true)
                 {
-                    gl_FragColor = objectColor * (1.7 * float(ray.numOfIterations) / float(maxRayIterations));
+                    gl_FragColor = vec4( vec3(objectColor) * 1.5 * (float(ray.numOfIterations) / float(maxRayIterations)), 1.0);
 
                     ray.finalPos += 0.01 * normalize(ray.finalPos - spherePos);
                     vec3 lightDir = normalize(lightPos - ray.finalPos);
@@ -188,12 +196,12 @@ class Shader
 
                     if (lightRay.hitObject == true)
                     {
-                        gl_FragColor = shadowColor;
+                        gl_FragColor = vec4(vec3(gl_FragColor) * 0.6, 1.0);//shadowColor;
                     }
                 }
                 else {
                     if (ray.minDist < 2.0 * minStep) {
-                        gl_FragColor = (2.0 * minStep / ray.minDist) * vec4(1.0, 0.2, 0.2, 1.);
+                        gl_FragColor = vec4((2.0 * minStep / ray.minDist) * mistColor, 1.0);
                     }
                 }
             }

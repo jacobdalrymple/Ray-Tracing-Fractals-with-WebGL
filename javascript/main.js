@@ -1,7 +1,8 @@
-function main()
+function main(height, width)
 {
     const canvas = document.querySelector("#glCanvas");
     const gl = canvas.getContext("webgl");
+    screenScale = [1, height / width , 1];
 
     if (gl == null)
     {
@@ -21,7 +22,7 @@ function main()
         now *= 0.001 //convert to seconds
         const timeElasped = now - startTime;
 
-        drawScene(gl, shader, timeElasped);
+        drawScene(gl, shader, timeElasped, screenScale);
 
         requestAnimationFrame(render);
     }
@@ -65,7 +66,7 @@ function initBuffers(gl, shader)
     };
 }
 
-function drawScene(gl, shader, timeElasped)
+function drawScene(gl, shader, timeElasped, screenScale)
 {
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clearDepth(1.0);
@@ -80,7 +81,7 @@ function drawScene(gl, shader, timeElasped)
 
     sinBob = Math.sin(0.05   * timeElasped);
     cosBob = Math.cos(0.05   * timeElasped);
-    rotBob = Math.cos(0.0005 * timeElasped);
+    rotBob = Math.sin(0.00005 * timeElasped);
 
     // Set the shader uniforms
     shader.configureVariable(gl, "spherePos", [0.0, 0.0, 0.0]);
@@ -88,6 +89,7 @@ function drawScene(gl, shader, timeElasped)
     shader.configureVariable(gl, "sphereRadius", 0.5);
     shader.configureVariable(gl, "power", 8.0 + 7*cosBob);
     shader.configureVariable(gl, "fractalYRotation", -360 * rotBob);
+    shader.configureVariable(gl, "screenScale", screenScale);
 
     {
         const offset = 0;
@@ -96,4 +98,12 @@ function drawScene(gl, shader, timeElasped)
     }
 }
 
-window.onload = main;
+$(document).ready(function(){
+
+    canvas = document.querySelector('#glCanvas');
+    canvas.height = $(window).height();
+    canvas.width = $(window).width();
+    main($(window).height(), $(window).width());
+  
+}); 
+
