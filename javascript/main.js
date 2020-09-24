@@ -10,9 +10,10 @@ function main(height, width)
         return;
     }
 
-    const shader = new Shader(gl);
-
-    const buffers = initBuffers(gl, shader);
+    const rayTracerShader = new Shader(gl, true);
+    const displayShader = new Shader(gl, false);
+    const framebuffer = new FrameBuffer(gl, height, width);
+    const buffers = initBuffers(gl, rayTracerShader);
 
 
     var startTime = 0;
@@ -22,7 +23,7 @@ function main(height, width)
         now *= 0.001 //convert to seconds
         const timeElasped = now - startTime;
 
-        drawScene(gl, shader, timeElasped, screenScale);
+        drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped, screenScale);
 
         requestAnimationFrame(render);
     }
@@ -66,36 +67,39 @@ function initBuffers(gl, shader)
     };
 }
 
-function drawScene(gl, shader, timeElasped, screenScale)
+function renderDrawingMesh(gl) {
+        const offset = 0;
+        const vertexCount = 3;
+        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+}
+
+function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped, screenScale)
 {
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-    gl.clearDepth(1.0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthFunc(gl.LEQUAL);
 
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    gl.useProgram(shader.program);
-
-    //animations vars
+    framebuffer.bindBuffer(gl);
+    gl.useProgram(rayTracerShader.program);
 
     sinBob = Math.sin(0.05   * timeElasped);
     cosBob = Math.cos(0.05   * timeElasped);
     rotBob = Math.sin(0.00005 * timeElasped);
 
     // Set the shader uniforms
-    shader.configureVariable(gl, "spherePos", [0.0, 0.0, 0.0]);
-    shader.configureVariable(gl, "lightPos", [3.0, 3.0, 3.0]);
-    shader.configureVariable(gl, "sphereRadius", 0.5);
-    shader.configureVariable(gl, "power", 8.0 + 7*cosBob);
-    shader.configureVariable(gl, "fractalYRotation", -360 * rotBob);
-    shader.configureVariable(gl, "screenScale", screenScale);
+    rayTracerShader.configureVariable(gl, "spherePos", [0.0, 0.0, 0.0]);
+    rayTracerShader.configureVariable(gl, "lightPos", [3.0, 3.0, 3.0]);
+    rayTracerShader.configureVariable(gl, "sphereRadius", 0.5);
+    rayTracerShader.configureVariable(gl, "power", 8.0 + 7*cosBob);
+    rayTracerShader.configureVariable(gl, "fractalYRotation", -360 * rotBob);
+    rayTracerShader.configureVariable(gl, "screenScale", screenScale);
 
-    {
-        const offset = 0;
-        const vertexCount = 3;
-        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
-    }
+    renderDrawingMesh(gl);
+
+    framebuffer.unBindBuffer(gl);
+
+    gl.clearColor(0.0, 0.0, 0.0, 1.0);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+    gl.useProgram(displayShader.program);
+
+    renderDrawingMesh(gl);
 }
 
 $(document).ready(function(){

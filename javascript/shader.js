@@ -1,9 +1,17 @@
 class Shader
 {
-    constructor(gl)
+    constructor(gl, renderFractal)
     {
-        const vertShader = this.loadShader(gl, gl.VERTEX_SHADER, this.vertexSource);
-        const fragShader = this.loadShader(gl, gl.FRAGMENT_SHADER, this.fragmentSource);
+
+        var vertSource = this.drawVertSource;
+        var fragSource = this.drawFragSource;
+
+        if (renderFractal) {
+            vertSource = this.fractalVertSource;
+            fragSource = this.fractalFragSource;
+        }
+        const vertShader = this.loadShader(gl, gl.VERTEX_SHADER, vertSource);
+        const fragShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fragSource);
 
         this._program = gl.createProgram();
         gl.attachShader(this._program, vertShader);
@@ -58,7 +66,36 @@ class Shader
         return this._program;
     }
 
-    get vertexSource()
+    get drawVertSource()
+    {
+        return `
+            attribute vec3 aPos;
+            
+            varying vec2 texCoords;
+            
+            void main() {
+                gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
+                texCoords = vec2(aPos);
+            }
+        `;
+    }
+
+    get drawFragSource()
+    {
+        return `
+            precision mediump float;
+        
+            varying vec2 texCoords;
+            
+            uniform sampler2D fractalTexture;
+            
+            void main() {
+                gl_FragColor = texture2D(fractalTexture, texCoords + vec2(0.5));
+            }
+        `;
+    }
+
+    get fractalVertSource()
     {
         return `
             attribute vec3 aPos;
@@ -74,7 +111,7 @@ class Shader
         `;
     }
 
-    get fragmentSource()
+    get fractalFragSource()
     {
         return `
             precision mediump float;
