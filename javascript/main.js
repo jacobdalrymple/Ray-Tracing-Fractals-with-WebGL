@@ -68,32 +68,36 @@ function initBuffers(gl, shader)
 }
 
 function renderDrawingMesh(gl) {
-        const offset = 0;
-        const vertexCount = 3;
-        gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
+    const offset = 0;
+    const vertexCount = 3;
+    gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
 }
 
 function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped, screenScale)
 {
 
-    framebuffer.bindBuffer(gl);
-    gl.useProgram(rayTracerShader.program);
+    if (renderNextFrame || !animtaionPaused) {
 
-    sinBob = Math.sin(0.05   * timeElasped);
-    cosBob = Math.cos(0.05   * timeElasped);
-    rotBob = Math.sin(0.00005 * timeElasped);
+        framebuffer.bindBuffer(gl);
+        gl.useProgram(rayTracerShader.program);
 
-    // Set the shader uniforms
-    rayTracerShader.configureVariable(gl, "spherePos", [0.0, 0.0, 0.0]);
-    rayTracerShader.configureVariable(gl, "lightPos", [3.0, 3.0, 3.0]);
-    rayTracerShader.configureVariable(gl, "sphereRadius", 0.5);
-    rayTracerShader.configureVariable(gl, "power", 8.0 + 7*cosBob);
-    rayTracerShader.configureVariable(gl, "fractalYRotation", -360 * rotBob);
-    rayTracerShader.configureVariable(gl, "screenScale", screenScale);
+        sinBob = Math.sin(0.05   * timeElasped);
+        cosBob = Math.cos(0.05   * timeElasped);
+        rotBob = Math.sin(0.00005 * timeElasped);
 
-    renderDrawingMesh(gl);
+        // Set the shader uniforms
+        rayTracerShader.configureVariable(gl, "spherePos", [0.0, 0.0, 0.0]);
+        rayTracerShader.configureVariable(gl, "lightPos", [3.0, 3.0, 3.0]);
+        rayTracerShader.configureVariable(gl, "sphereRadius", 0.5);
+        rayTracerShader.configureVariable(gl, "power", 8.0 + 7*cosBob);
+        rayTracerShader.configureVariable(gl, "fractalYRotation", -360 * rotBob);
+        rayTracerShader.configureVariable(gl, "screenScale", screenScale);
 
-    framebuffer.unBindBuffer(gl);
+        renderDrawingMesh(gl);
+        framebuffer.unBindBuffer(gl);
+
+        if (renderNextFrame) renderNextFrame = !renderNextFrame;
+    }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -102,12 +106,19 @@ function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped,
     renderDrawingMesh(gl);
 }
 
+var renderNextFrame = true;
+var animtaionPaused = true;
+
 $(document).ready(function(){
 
     canvas = document.querySelector('#glCanvas');
     canvas.height = $(window).height();
     canvas.width = $(window).width();
     main($(window).height(), $(window).width());
-  
+
+    $("#pauseAnimation").click(function(){
+        animtaionPaused = !animtaionPaused;
+    }); 
+
 }); 
 

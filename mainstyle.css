@@ -9,5 +9,19 @@ html, body {
 }
 
 canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     display:block;
+    z-index: -1;
+}
+
+.btn-custom {
+    outline: none !important;
+    border-style: none;
+    background-color: rgba(84, 84, 84, 0.5) !important;
+    border-radius: 0 !important;
+}
+.btn-custom:hover {
+    background-color: rgba(84, 84, 84, 0.7) !important;
 }
