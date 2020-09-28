@@ -16,12 +16,14 @@ function main(height, width)
     const buffers = initBuffers(gl, rayTracerShader);
 
 
-    var startTime = 0;
-
     function render(now)
     {
         now *= 0.001 //convert to seconds
-        const timeElasped = now - startTime;
+        if (animtaionPaused){
+            timeElaspedWhilePaused = now - startTime;
+        } else {
+            timeElasped = now - startTime;
+        }
 
         drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped, screenScale);
 
@@ -106,8 +108,21 @@ function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped,
     renderDrawingMesh(gl);
 }
 
+function updateIconColors(animtaionPaused) {
+    if (animtaionPaused) {
+        $('#play-icon').removeClass("green");
+        $('#pause-icon').addClass("red");
+    } else {
+        $('#play-icon').addClass("green");
+        $('#pause-icon').removeClass("red");
+    }
+}
+
 var renderNextFrame = true;
 var animtaionPaused = true;
+var startTime = 0;
+var timeElaspedWhilePaused = 0;
+var timeElasped = 0;
 
 $(document).ready(function(){
 
@@ -115,9 +130,15 @@ $(document).ready(function(){
     canvas.height = $(window).height();
     canvas.width = $(window).width();
     main($(window).height(), $(window).width());
+    updateIconColors(animtaionPaused);
 
     $("#pauseAnimation").click(function(){
+        if (animtaionPaused) {
+            startTime += (timeElaspedWhilePaused - timeElasped);
+            timeElaspedWhilePaused = 0;
+        }
         animtaionPaused = !animtaionPaused;
+        updateIconColors(animtaionPaused);
     }); 
 
 }); 

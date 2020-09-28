@@ -25,3 +25,10 @@ canvas {
 .btn-custom:hover {
     background-color: rgba(84, 84, 84, 0.7) !important;
 }
+
+.red {
+    color: red;
+}
+.green {
+    color: green;
+}
