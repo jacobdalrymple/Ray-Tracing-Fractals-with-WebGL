@@ -17,6 +17,7 @@ canvas {
 }
 
 .btn-custom {
+    margin: 2.5px 0.5px !important;
     outline: none !important;
     border-style: none;
     background-color: rgba(84, 84, 84, 0.5) !important;
@@ -26,9 +27,51 @@ canvas {
     background-color: rgba(84, 84, 84, 0.7) !important;
 }
 
+.row {
+    width: 100%;
+}
+
+#menu {
+    margin-left: 20px;
+    top: 0;
+    left: 0;
+    float: left;
+    width: 400px;
+    font-size: small;
+}
+
 .red {
     color: red;
 }
 .green {
     color: green;
+}
+
+.slidecontainer {
+    margin: 2.5px 0.5px;
+    padding: 5px 5px;
+    outline: none;
+    border-style: none;
+    background-color: rgba(84, 84, 84, 0.5);
+    border-radius: 0;
+    vertical-align: middle;
+    color: white;
+    display: flex;
+    justify-content: space-evenly;
+}
+   
+.slider {
+    width: 50%;
+}
+.slider:hover {
+    opacity: 1;
+}
+
+.slider-label {
+    display: inline-flex;
+    align-items: center;
+}
+
+.input {
+    width: 10%;
 }
