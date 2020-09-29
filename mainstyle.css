@@ -26,6 +26,12 @@ canvas {
 .btn-custom:hover {
     background-color: rgba(84, 84, 84, 0.7) !important;
 }
+.btn-custom:focus {
+    color:  !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background-color: rgba(144, 144, 144, 0.7) !important;
+}
 
 .row {
     width: 100%;
@@ -41,10 +47,10 @@ canvas {
 }
 
 .red {
-    color: red;
+    color: red !important;
 }
 .green {
-    color: green;
+    color: green !important;
 }
 
 .slidecontainer {

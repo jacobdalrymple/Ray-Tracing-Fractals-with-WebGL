@@ -1,4 +1,4 @@
-function main(height, width)
+function startRender(height, width)
 {
     const canvas = document.querySelector("#glCanvas");
     const gl = canvas.getContext("webgl");
@@ -100,7 +100,7 @@ function configureShaderVariables(gl, shader, timeElasped) {
     rotBob = Math.sin(0.00005 * timeElasped);
 
     if (animationPaused.fractalPower) {
-        shader.configureVariable(gl, "power", shaderVariables);
+        shader.configureVariable(gl, "power", shaderVariables.fractalPower);
     } else {
         newFractalPower = 8.0 + 7*cosBob;
         
