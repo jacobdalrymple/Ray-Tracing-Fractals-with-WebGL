@@ -73,7 +73,7 @@ function renderDrawingMesh(gl) {
 function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped, screenScale)
 {
 
-    if (renderNextFrame || !animationPaused.all) {
+    if (renderNextFrame || !animationPaused.all || !animationPaused.fractalPower) {
 
         framebuffer.bindBuffer(gl);
         gl.useProgram(rayTracerShader.program);
@@ -103,6 +103,7 @@ function configureShaderVariables(gl, shader, timeElasped) {
         shader.configureVariable(gl, "power", shaderVariables.fractalPower);
     } else {
         newFractalPower = 8.0 + 7*cosBob;
+        shaderVariables.fractalPower = newFractalPower;
         
         $("#fractalPowerTextInput").val(newFractalPower);
         $("#fractalPowerSlider").val(10*newFractalPower);
