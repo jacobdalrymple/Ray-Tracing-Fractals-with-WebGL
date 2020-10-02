@@ -105,7 +105,7 @@ function configureShaderVariables(gl, shader, timeElasped) {
         newFractalPower = 8.0 + 7*cosBob;
         shaderVariables.fractalPower = newFractalPower;
         
-        $("#fractalPowerTextInput").val(newFractalPower);
+        if (!textAreaFocused.fractalPower) $("#fractalPowerTextInput").val(newFractalPower);
         $("#fractalPowerSlider").val(10*newFractalPower);
         
         shader.configureVariable(gl, "power", newFractalPower);
