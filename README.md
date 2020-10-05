@@ -1,7 +1,6 @@
 # Ray Tracing Fractals
 
 Website link to project below :
-
 https://jacobdalrymple.github.io/Ray-Tracing-Fractals-with-WebGL/
 
 
