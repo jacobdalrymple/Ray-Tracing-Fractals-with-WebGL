@@ -10,6 +10,9 @@ function startRender(height, width)
         return;
     }
 
+    //console.log(height);
+    //console.log(width);
+
     const rayTracerShader = new Shader(gl, true);
     const displayShader = new Shader(gl, false);
     const framebuffer = new FrameBuffer(gl, height, width);
@@ -76,6 +79,7 @@ function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped,
     if (renderNextFrame || !animationPaused.all || !animationPaused.fractalPower) {
 
         framebuffer.bindBuffer(gl);
+        gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.useProgram(rayTracerShader.program);
 
         configureShaderVariables(gl, rayTracerShader, timeElasped);
@@ -83,7 +87,7 @@ function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped,
         renderDrawingMesh(gl);
         framebuffer.unBindBuffer(gl);
 
-        if (renderNextFrame) renderNextFrame = !renderNextFrame;
+        renderNextFrame = false;
     }
 
     gl.clearColor(0.0, 0.0, 0.0, 1.0);
@@ -99,18 +103,18 @@ function configureShaderVariables(gl, shader, timeElasped) {
     cosBob = Math.cos(0.05   * timeElasped);
     rotBob = Math.sin(0.00005 * timeElasped);
 
-    if (animationPaused.fractalPower) {
-        shader.configureVariable(gl, "power", shaderVariables.fractalPower);
-    } else {
-        newFractalPower = 8.0 + 7*cosBob;
-        shaderVariables.fractalPower = newFractalPower;
+    
+    if (!animationPaused.fractalPower) {
+
+        shaderVariables.fractalPower = 8.0 + 7*cosBob;
         
-        if (!textAreaFocused.fractalPower) $("#fractalPowerTextInput").val(newFractalPower);
-        $("#fractalPowerSlider").val(10*newFractalPower);
-        
-        shader.configureVariable(gl, "power", newFractalPower);
+        if (!textAreaFocused.fractalPower) $("#fractalPowerTextInput").val(shaderVariables.fractalPower);
+        $("#fractalPowerSlider").val(10 *   shaderVariables.fractalPower);
     }
 
+    shader.configureVariable(gl, "power", shaderVariables.fractalPower);
+
+    shader.configureVariable(gl, "zPos", shaderVariables.cameraZPos);
     shader.configureVariable(gl, "spherePos", [0.0, 0.0, 0.0]);
     shader.configureVariable(gl, "lightPos", [3.0, 3.0, 3.0]);
     shader.configureVariable(gl, "sphereRadius", 0.5);

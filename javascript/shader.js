@@ -90,7 +90,7 @@ class Shader
             uniform sampler2D fractalTexture;
             
             void main() {
-                gl_FragColor = texture2D(fractalTexture, texCoords + vec2(0.5));
+                gl_FragColor = texture2D(fractalTexture, 0.5*(texCoords + vec2(1) ));
             }
         `;
     }
@@ -123,6 +123,7 @@ class Shader
             uniform float sphereRadius;
             uniform float power;
             uniform float fractalYRotation;
+            uniform float zPos;
 
             struct RayInfo {
                 bool hitObject;
@@ -211,7 +212,7 @@ class Shader
             void main ()
             {
                 vec3 rayDir = normalize( vec3(fragPos.x / 2. , fragPos.y / 2. , -0.5) );
-                vec3 rayPos = vec3(0.0, 0.0, 3.7);
+                vec3 rayPos = vec3(0.0, 0.0, zPos);
                 float minStep = 0.001;
 
                 vec4 backgroundColor = vec4(0.0 , 0.2, 0.2, 1.0) + vec4(0.4 , 0.4, 0.25, 0.0) * (rayDir.y - 0.5);

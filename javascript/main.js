@@ -35,7 +35,8 @@ var animationPaused = {
     fractalPower: false
 };
 var shaderVariables = {
-    fractalPower: 8.0
+    fractalPower: 8.0,
+    cameraZPos: 3.0
 }
 var textAreaFocused = {
     fractalPower: false
@@ -52,6 +53,24 @@ $(document).ready(function(){
     startRender($(window).height(), $(window).width());
 
     updateIconColors();
+
+    // keyboard key press event
+    $('body').keypress(function(event) {
+        
+        keyChar = String.fromCharCode(event.which);
+
+        switch(keyChar) {
+            case 'a':
+                shaderVariables.cameraZPos -= 0.01;
+                renderNextFrame = true;
+                break;
+            case 'z':
+                shaderVariables.cameraZPos += 0.01;
+                renderNextFrame = true;
+                break;
+        }
+
+    });
 
     $('#fractalPowerSlider').attr({min: 10, max: 150, step:1, value: 80});
 
@@ -90,7 +109,7 @@ $(document).ready(function(){
             alert('Fractal power must be a number within the range 1 - 14.');
         } else {
             shaderVariables.fractalPower = fractalPower;
-            console.log(shaderVariables.fractalPower);
+            $('#fractalPowerSlider').val(fractalPower * 10);
         }
     });
 
@@ -101,8 +120,8 @@ $(document).ready(function(){
             startTime += (timeElaspedWhilePaused - timeElasped);
             timeElaspedWhilePaused = 0;
         }
+        setFractalPowerAnimation(animationPaused.all ? 'play' : 'pause');
         animationPaused.all = !animationPaused.all;
-        if (animationPaused.fractalPower) setFractalPowerAnimation('play');
         updateIconColors();
     }); 
 
