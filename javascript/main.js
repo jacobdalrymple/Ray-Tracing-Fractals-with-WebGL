@@ -1,3 +1,25 @@
+var renderNextFrame = true;
+var textAreaFocused = {
+    fractalPower: false
+};
+var allAnimationPaused = false;
+var fractalPower = new AnimatedParameter(8, 7, 0.05, false, 
+                                         function(time, scale) {
+                                             return Math.cos(scale * time);
+                                         });
+var cameraZPos = new AnimatedParameter(3, 0, 0, true,
+                                         function(time, scale) {
+                                            return 0;
+                                         });
+var fractalRotation = new AnimatedParameter(0, 360, 0.00005, false,
+                                         function(time, scale) {
+                                            return Math.sin(scale * time);
+                                         });
+
+function isAAnimationPlaying() {
+    return !fractalRotation.paused || !cameraZPos.paused || !fractalPower.paused;
+}
+
 function toggleIconColor(id, color) {
     if (color == 'red') {
         $(id).addClass('red');
@@ -8,42 +30,36 @@ function toggleIconColor(id, color) {
     }
 }
 
-function updateIconColors() {
-    if (animationPaused.all) {
-        $('#play-icon').removeClass('green');
-        $('#pause-icon').addClass('red');
-        toggleIconColor('#fractalPowerPlay', 'red');
-    } else {
+function setAllAnimation(toggle) {
+    if (toggle == 'play') {
         $('#play-icon').addClass('green');
         $('#pause-icon').removeClass('red');
-        toggleIconColor('#fractalPowerPlay', 'green')
+    } else {
+        $('#play-icon').removeClass('green');
+        $('#pause-icon').addClass('red');
     }
+    setFractalPowerAnimation(toggle);
+    setFractalRotationAnimation(toggle);
 }
 
 function setFractalPowerAnimation(toggle) {
     if (toggle == 'play') {
+        fractalPower.play();
         toggleIconColor('#fractalPowerPlay', 'green');
     } else {
+        fractalPower.pause();
         toggleIconColor('#fractalPowerPlay', 'red');
     }
-    animationPaused.fractalPower = (toggle == 'play') ? false : true;
 }
-
-var renderNextFrame = true;
-var animationPaused = {
-    all: false,
-    fractalPower: false
-};
-var shaderVariables = {
-    fractalPower: 8.0,
-    cameraZPos: 3.0
+function setFractalRotationAnimation(toggle) {
+    if (toggle == 'play') {
+        fractalRotation.play();
+        //toggleIconColor('#fractalPowerPlay', 'green');
+    } else {
+        fractalRotation.pause();
+        //toggleIconColor('#fractalPowerPlay', 'red');
+    }
 }
-var textAreaFocused = {
-    fractalPower: false
-};
-var startTime = 0;
-var timeElaspedWhilePaused = 0;
-var timeElasped = 0;
 
 $(document).ready(function(){
 
@@ -52,7 +68,9 @@ $(document).ready(function(){
     canvas.width = $(window).width();
     startRender($(window).height(), $(window).width());
 
-    updateIconColors();
+    setAllAnimation('play');
+
+    $('#fractalPowerSlider').attr({min: 10, max: 150, step:1, value: 80});
 
     // keyboard key press event
     $('body').keypress(function(event) {
@@ -61,31 +79,28 @@ $(document).ready(function(){
 
         switch(keyChar) {
             case 'a':
-                shaderVariables.cameraZPos -= 0.01;
+                cameraZPos.value -= 0.01;
                 renderNextFrame = true;
                 break;
             case 'z':
-                shaderVariables.cameraZPos += 0.01;
+                cameraZPos.value += 0.01;
                 renderNextFrame = true;
                 break;
         }
-
     });
-
-    $('#fractalPowerSlider').attr({min: 10, max: 150, step:1, value: 80});
 
     $('#fractalPowerSlider').on('input', function() {
         setFractalPowerAnimation('pause');
         sliderValue = 0.1 * parseFloat($('#fractalPowerSlider').val());
     
-        shaderVariables.fractalPower = sliderValue;
+        fractalPower.value = sliderValue;
         $("#fractalPowerTextInput").val(sliderValue);
         renderNextFrame = true;
     });
 
     //  play/pause fractal animation
     $('#fractalPowerPlay').click(function(){
-        setFractalPowerAnimation(animationPaused.fractalPower ? 'play' : 'pause');
+        setFractalPowerAnimation(fractalPower.paused ? 'play' : 'pause');
     });
 
     // fractal power text input events
@@ -102,28 +117,23 @@ $(document).ready(function(){
             return;
         }
         oldVal = currentVal;
-        if (!animationPaused.fractalPower) setFractalPowerAnimation('pause');
+        if (!fractalPower.paused)
+            setFractalPowerAnimation('pause');
 
         fractalPower = parseFloat(currentVal);
         if (typeof fractalPower != 'number' || isNaN(fractalPower) || fractalPower < 1 || fractalPower > 15) {
             alert('Fractal power must be a number within the range 1 - 14.');
         } else {
-            shaderVariables.fractalPower = fractalPower;
+            fractalPower.value = fractalPower;
             $('#fractalPowerSlider').val(fractalPower * 10);
         }
     });
 
-
     //  play/pause all animation
     $('#pauseAnimation').click(function(){
-        if (animationPaused.all) {
-            startTime += (timeElaspedWhilePaused - timeElasped);
-            timeElaspedWhilePaused = 0;
-        }
-        setFractalPowerAnimation(animationPaused.all ? 'play' : 'pause');
-        animationPaused.all = !animationPaused.all;
-        updateIconColors();
+        setAllAnimation(allAnimationPaused ? 'play' : 'pause');
+        allAnimationPaused = !allAnimationPaused;
     }); 
 
-}); 
+});
 

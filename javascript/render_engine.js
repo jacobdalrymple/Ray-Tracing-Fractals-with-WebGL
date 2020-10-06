@@ -10,24 +10,19 @@ function startRender(height, width)
         return;
     }
 
-    //console.log(height);
-    //console.log(width);
-
     const rayTracerShader = new Shader(gl, true);
     const displayShader = new Shader(gl, false);
     const framebuffer = new FrameBuffer(gl, height, width);
     initBuffers(gl, rayTracerShader);
 
-    function render(now)
+    function render(currentTime)
     {
-        now *= 0.001 //convert to seconds
-        if (animationPaused.all){
-            timeElaspedWhilePaused = now - startTime;
-        } else {
-            timeElasped = now - startTime;
-        }
+        currentTime *= 0.001;   //to seconds
 
-        drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped, screenScale);
+        fractalPower.updateValue(currentTime);
+        fractalRotation.updateValue(currentTime);
+
+        drawScene(gl, rayTracerShader, displayShader, framebuffer, currentTime);
 
         requestAnimationFrame(render);
     }
@@ -73,16 +68,16 @@ function renderDrawingMesh(gl) {
     gl.drawArrays(gl.TRIANGLE_STRIP, offset, vertexCount);
 }
 
-function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped, screenScale)
+function drawScene(gl, rayTracerShader, displayShader, framebuffer, currentTime)
 {
 
-    if (renderNextFrame || !animationPaused.all || !animationPaused.fractalPower) {
+    if (renderNextFrame || isAAnimationPlaying()) {
 
         framebuffer.bindBuffer(gl);
         gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
         gl.useProgram(rayTracerShader.program);
 
-        configureShaderVariables(gl, rayTracerShader, timeElasped);
+        configureShaderVariables(gl, rayTracerShader, currentTime);
 
         renderDrawingMesh(gl);
         framebuffer.unBindBuffer(gl);
@@ -97,27 +92,19 @@ function drawScene(gl, rayTracerShader, displayShader, framebuffer, timeElasped,
     renderDrawingMesh(gl);
 }
 
-function configureShaderVariables(gl, shader, timeElasped) {
+function configureShaderVariables(gl, shader, currentTime) {
 
-    sinBob = Math.sin(0.05   * timeElasped);
-    cosBob = Math.cos(0.05   * timeElasped);
-    rotBob = Math.sin(0.00005 * timeElasped);
-
-    
-    if (!animationPaused.fractalPower) {
-
-        shaderVariables.fractalPower = 8.0 + 7*cosBob;
-        
-        if (!textAreaFocused.fractalPower) $("#fractalPowerTextInput").val(shaderVariables.fractalPower);
-        $("#fractalPowerSlider").val(10 *   shaderVariables.fractalPower);
+    //update UI values
+    if (!fractalPower.paused) {
+        if (!textAreaFocused.fractalPower)
+            $("#fractalPowerTextInput").val(fractalPower.value);
+        $("#fractalPowerSlider").val(10 *   fractalPower.value);
     }
-
-    shader.configureVariable(gl, "power", shaderVariables.fractalPower);
-
-    shader.configureVariable(gl, "zPos", shaderVariables.cameraZPos);
+    shader.configureVariable(gl, "power", fractalPower.value);
+    shader.configureVariable(gl, "zPos", cameraZPos.value);
     shader.configureVariable(gl, "spherePos", [0.0, 0.0, 0.0]);
     shader.configureVariable(gl, "lightPos", [3.0, 3.0, 3.0]);
     shader.configureVariable(gl, "sphereRadius", 0.5);
-    shader.configureVariable(gl, "fractalYRotation", -360 * rotBob);
+    shader.configureVariable(gl, "fractalYRotation", fractalRotation.value);
     shader.configureVariable(gl, "screenScale", screenScale);
 }
